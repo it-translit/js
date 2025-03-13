@@ -50,24 +50,31 @@ mapping = {
     'шкх':'shkhw',
 }
 
-sorted_mapping = sorted(mapping.items(), key = lambda tup: len(tup[0]), reverse = True)
-sorted_mapping_with_q = [(fr, to.replace("'", 'q')) for fr, to in sorted_mapping]
+def get_mappings(items):
+    mappings = [{} for _ in range(max(len(fr) for fr, to in items))]
+    for fr, to in items:
+        mappings[len(fr) - 1][fr] = to
+    return mappings
 
-sorted_mapping_reverse = []
+mappings_wo_q = get_mappings(mapping.items())
+mappings_with_q = get_mappings([(fr, to.replace("'", 'q')) for fr, to in mapping.items()])
+
+mappings_reverse_items = []
 for fr, to in mapping.items():
-    sorted_mapping_reverse.append((to, fr))
+    mappings_reverse_items.append((to, fr))
     if "'" in to:
-        sorted_mapping_reverse.append((to.replace("'", 'q'), fr))
-sorted_mapping_reverse.sort(key = lambda tup: len(tup[0]), reverse = True)
+        mappings_reverse_items.append((to.replace("'", 'q'), fr))
+mappings_reverse = get_mappings(mappings_reverse_items)
 
-def _trans(source, mapping):
+def _trans(source, mappings):
     res = ''
     i = 0
     while i < len(source):
-        for fr, to in mapping:
-            if source[i:i+len(fr)] == fr:
+        for n in range(len(mappings), 0, -1):
+            to = mappings[n-1].get(source[i:i+n])
+            if to is not None:
                 res += to
-                i += len(fr)
+                i += n
                 break
         else:
             res += source[i]
@@ -75,7 +82,7 @@ def _trans(source, mapping):
     return res
 
 def trans(source, use_q = False):
-    return _trans(source, sorted_mapping_with_q if use_q else sorted_mapping)
+    return _trans(source, mappings_with_q if use_q else mappings_wo_q)
 
 def reverse(source):
-    return _trans(source, sorted_mapping_reverse)
+    return _trans(source, mappings_reverse)

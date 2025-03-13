@@ -1,6 +1,6 @@
 "use strict";
 
-// Define the mapping object exactly as given in the Python code
+// Define the mapping object exactly as in the Python code
 const mapping = {
     'а': 'a',
     'б': 'b',
@@ -50,43 +50,72 @@ const mapping = {
     'зх': 'zkh',
     'зкх': 'zkhw',
     'скх': 'skhw',
-    'шкх': 'shkhw'
+    'шкх': 'shkhw',
 };
 
-// Sort the mapping items in descending order by the length of the key (first element)
-const sorted_mapping = Object.entries(mapping).sort((a, b) => b[0].length - a[0].length);
+// Function get_mappings(items)
+// Translates the Python get_mappings function line by line.
+// It takes an array of [fr, to] pairs and returns an array of mapping objects,
+// one for each key length from 1 up to the maximum length found.
+function get_mappings(items) {
+    // Compute the maximum length of source strings in items
+    let maxLen = Math.max(...items.map(pair => pair[0].length));
+    // Initialize an array of empty objects for each possible length
+    let mappings = Array.from({ length: maxLen }, () => ({}));
+    // Populate the mappings for each [fr, to] pair
+    for (let i = 0; i < items.length; i++) {
+        let fr = items[i][0];
+        let to = items[i][1];
+        mappings[fr.length - 1][fr] = to;
+    }
+    return mappings;
+}
 
-// Create sorted_mapping_with_q by replacing any apostrophe (') in the value with 'q'
-const sorted_mapping_with_q = sorted_mapping.map(([fr, to]) => [fr, to.replace(/'/g, 'q')]);
+// Create mappings_wo_q using the items of mapping
+const mappings_wo_q = get_mappings(Object.entries(mapping));
 
-// Create the reverse mapping list
-const sorted_mapping_reverse = [];
-Object.entries(mapping).forEach(([fr, to]) => {
-    sorted_mapping_reverse.push([to, fr]);
+// Create mappings_with_q by replacing apostrophes with 'q' in the 'to' strings
+const mappings_with_q = get_mappings(Object.entries(mapping).map(pair => {
+    let fr = pair[0];
+    let to = pair[1].split("'").join("q");
+    return [fr, to];
+}));
+
+// Build the reverse mapping items array
+const mappings_reverse_items = [];
+Object.entries(mapping).forEach(pair => {
+    let fr = pair[0];
+    let to = pair[1];
+    // Append the normal reverse mapping
+    mappings_reverse_items.push([to, fr]);
+    // If the 'to' string contains an apostrophe, also add a variant with apostrophes replaced by 'q'
     if (to.includes("'")) {
-        sorted_mapping_reverse.push([to.replace(/'/g, 'q'), fr]);
+        mappings_reverse_items.push([to.split("'").join("q"), fr]);
     }
 });
-// Sort the reverse mapping list in descending order by the length of the key (first element)
-sorted_mapping_reverse.sort((a, b) => b[0].length - a[0].length);
 
-// Internal translation function that applies the mapping to the source string
-function _trans(source, mapping) {
+// Create the reverse mappings using the get_mappings function
+const mappings_reverse = get_mappings(mappings_reverse_items);
+
+// Function _trans which performs the translation based on given mappings
+function _trans(source, mappings) {
     let res = '';
     let i = 0;
     while (i < source.length) {
-        let matched = false;
-        for (let j = 0; j < mapping.length; j++) {
-            const fr = mapping[j][0];
-            const to = mapping[j][1];
-            if (source.substring(i, i + fr.length) === fr) {
-                res += to;
-                i += fr.length;
-                matched = true;
+        // Iterate over possible substring lengths, from longest to shortest
+        let found = false;
+        for (let n = mappings.length; n > 0; n--) {
+            let substr = source.substring(i, i + n);
+            // Check if the substring exists in the mapping for this length
+            if (mappings[n - 1].hasOwnProperty(substr)) {
+                res += mappings[n - 1][substr];
+                i += n;
+                found = true;
                 break;
             }
         }
-        if (!matched) {
+        // If no mapping was found, append the current character as is
+        if (!found) {
             res += source[i];
             i += 1;
         }
@@ -94,15 +123,15 @@ function _trans(source, mapping) {
     return res;
 }
 
-// Translates the source string using the sorted mapping.
-// If use_q is true, uses sorted_mapping_with_q; otherwise, uses sorted_mapping.
+// Function trans which translates the source using either mappings_with_q or mappings_wo_q based on the use_q flag
 function trans(source, use_q = false) {
-    return _trans(source, use_q ? sorted_mapping_with_q : sorted_mapping);
+    return _trans(source, use_q ? mappings_with_q : mappings_wo_q);
 }
 
-// Reverses the translation of the source string using the reverse mapping.
+// Function reverse which translates the source using the reverse mappings
 function reverse(source) {
-    return _trans(source, sorted_mapping_reverse);
+    return _trans(source, mappings_reverse);
 }
 
-module.exports = { mapping, sorted_mapping, sorted_mapping_with_q, sorted_mapping_reverse, _trans, trans, reverse };
+// (Optional) Exporting the functions if using in a module system
+// module.exports = { mapping, get_mappings, trans, reverse };
