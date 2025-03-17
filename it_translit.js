@@ -141,8 +141,8 @@ function trans(source, use_q) {
             if (to !== undefined) {
                 if (!use_q && (to.startsWith("'") || to.startsWith("e'"))) {
                     let s = source.substr(i, n);
-                    if ((s === s.toLowerCase() && i > 0 && isLower(source[i - 1])) ||
-                        (s === s.toUpperCase() && i > 0 && isUpper(source[i - 1]))) {
+                    if ((s === s.toLowerCase() && (i == 0 || !isUpper(source[i - 1]))) ||
+                        (s === s.toUpperCase() &&  i  > 0 &&  isUpper(source[i - 1]))) {
                         // pass
                     } else {
                         to = to.replaceAll("'", "q");
