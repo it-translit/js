@@ -81,9 +81,7 @@ function get_mappings(items) {
         mappings.push({});
     }
     // Populate each mapping dictionary based on key length
-    for (let j = 0; j < items.length; j++) {
-        let fr = items[j][0];
-        let to = items[j][1];
+    for (const [fr, to] of items) {
         mappings[fr.length - 1][fr] = to;
     }
     return mappings;
@@ -91,15 +89,15 @@ function get_mappings(items) {
 
 const mappings_wo_q = get_mappings(Object.entries(mapping));
 const mappings_with_q = get_mappings(Object.entries(mapping).map(function(item) {
-    return [item[0], item[1].split("'").join("q")];
+    return [item[0], item[1].replaceAll("'", "q")];
 }));
 
 let mappings_reverse_items = [];
 Object.entries(mapping).forEach(function(item) {
     let fr = item[0], to = item[1];
     mappings_reverse_items.push([to, fr]);
-    if (to.indexOf("'") !== -1) {
-        mappings_reverse_items.push([to.split("'").join("q"), fr]);
+    if (to.includes("'")) {
+        mappings_reverse_items.push([to.replaceAll("'", "q"), fr]);
     }
 });
 const mappings_reverse = get_mappings(mappings_reverse_items);
@@ -113,12 +111,12 @@ function trans(source, use_q) {
     while (i < source.length) {
         if (source[i] === '\\') {
             res += '\\\\';
-            i += 1;
+            i++;
             continue;
         } else if ((source_lower.charCodeAt(i) >= 'a'.charCodeAt(0) && source_lower.charCodeAt(i) <= 'z'.charCodeAt(0)) || source_lower[i] === "'") {
             res += '\\';
             let start = i;
-            i += 1;
+            i++;
             while (i < source.length) {
                 let code = source_lower.charCodeAt(i);
                 if ((code >= 'а'.charCodeAt(0) && code <= 'я'.charCodeAt(0)) || source_lower[i] === "ё") {
@@ -126,13 +124,13 @@ function trans(source, use_q) {
                     while (i >= 0 && !(((source_lower.charCodeAt(i) >= 'a'.charCodeAt(0) && source_lower.charCodeAt(i) <= 'z'.charCodeAt(0)) || source_lower[i] === "'"))) {
                         i -= 1;
                     }
-                    i += 1;
+                    i++;
                     break;
                 }
-                i += 1;
+                i++;
             }
             // Using split/join to replace all '\' with '\\'
-            res += source.substring(start, i).split('\\').join('\\\\') + '\\';
+            res += source.substring(start, i).replaceAll('\\', '\\\\') + '\\';
             continue;
         }
 
@@ -147,10 +145,10 @@ function trans(source, use_q) {
                         (s === s.toUpperCase() && i > 0 && isUpper(source[i - 1]))) {
                         // pass
                     } else {
-                        to = to.split("'").join("q");
+                        to = to.replaceAll("'", "q");
                     }
                 }
-                if (sl === 'кс' && ['х', 'к'].indexOf(source_lower.substr(i + n, 1)) !== -1) {
+                if (sl === 'кс' && ['х', 'к'].includes(source_lower.substr(i + n, 1))) {
                     // Skip this mapping if conditions match
                     // continue to next iteration of the for-loop
                     continue;
@@ -162,7 +160,7 @@ function trans(source, use_q) {
                                 to = 'kS';
                             } else if (source.substr(i, n) === 'КС' && !((source.substr(i + 2, 1) !== "" && isUpper(source.substr(i + 2, 1))) || (i > 0 && isUpper(source[i - 1])))) {
                                 to = 'KS';
-                            } else if (source.substr(i, n) === 'Кс' && ((source.substr(i + 2, 1) !== "" && !isLower(source.substr(i + 2, 1))) || "ъь".indexOf(source.substr(i + 2, 1)) !== -1 || (i > 0 && isAlpha(source[i - 1])))) {
+                            } else if (source.substr(i, n) === 'Кс' && ((source.substr(i + 2, 1) !== "" && !isLower(source.substr(i + 2, 1))) || "ъь".includes(source.substr(i + 2, 1)) || (i > 0 && isAlpha(source[i - 1])))) {
                                 to = 'Ks';
                             } else {
                                 to = to.toUpperCase();
@@ -208,7 +206,7 @@ function trans(source, use_q) {
         }
         if (!matched) {
             res += source[i];
-            i += 1;
+            i++;
         }
     }
     return res;
@@ -220,14 +218,14 @@ function reverse(source) {
     let i = 0;
     while (i < source.length) {
         if (source[i] === '\\') {
-            i += 1;
+            i++;
             if (i < source.length && source[i] === '\\') {
                 res += '\\';
-                i += 1;
+                i++;
                 continue;
             }
             let start = i;
-            i += 1;
+            i++;
             while (i < source.length) {
                 if (source[i] === '\\') {
                     if (i + 1 < source.length && source[i + 1] === '\\') {
@@ -237,10 +235,10 @@ function reverse(source) {
                         continue;
                     }
                     res += source.substring(start, i);
-                    i += 1;
+                    i++;
                     break;
                 }
-                i += 1;
+                i++;
             }
             continue;
         }
@@ -290,7 +288,7 @@ function reverse(source) {
         }
         if (!matched) {
             res += source[i];
-            i += 1;
+            i++;
         }
     }
     return res;

@@ -78,7 +78,7 @@ t('ЪМ', "QQM");
 t('МЪ', "M''");
 
 t('Сканер QR-кода', "Skaner \\QR\\-koda");
-t('Яхта\\yacht', "Yahta\\\\\\yacht" + "\\");
+t('Яхта\\yacht', "Yahta\\\\\\yacht\\");
 t('C\\D', '\\C\\\\D\\');
 t("Git", '\\Git\\');
 t("Git'а", "\\Git'\\a");
@@ -137,7 +137,7 @@ for (let rep = 1; rep <= 4; rep++) {
         if (it_translit.reverse(tr) !== s) {
             t(s, tr);
         }
-        if (tr.indexOf("'") !== -1) {
+        if (tr.includes("'")) {
             if (it_translit.reverse(it_translit.trans(s, true)) !== s) {
                 t(s, it_translit.trans(s, true), true);
             }
