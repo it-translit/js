@@ -102,7 +102,7 @@ Object.entries(mapping).forEach(function(item) {
 });
 const mappings_reverse = get_mappings(mappings_reverse_items);
 
-function trans(source, use_q = false) {
+function trans(source, {use_q = false} = {}) {
     let mappings = use_q ? mappings_with_q : mappings_wo_q;
     let source_lower = source.toLowerCase();
     let res = '';

@@ -11,7 +11,7 @@ let ok = true;
 // Test function, exactly as in the Python code.
 function t(s, d, use_q = false) {
     // Compare the transliteration of s with expected d.
-    let transResult = it_translit.trans(s, use_q);
+    let transResult = it_translit.trans(s, {use_q: use_q});
     if (transResult !== d) {
         process.stderr.write(`${s} -> ${transResult}\n`);
         ok = false;
@@ -144,8 +144,8 @@ for (let rep = 1; rep <= 4; rep++) {
             t(s, tr);
         }
         if (tr.includes("'")) {
-            if (it_translit.reverse(it_translit.trans(s, true)) !== s) {
-                t(s, it_translit.trans(s, true), true);
+            if (it_translit.reverse(it_translit.trans(s, {use_q: true})) !== s) {
+                t(s, it_translit.trans(s, {use_q: true}), true);
             }
         }
     }
