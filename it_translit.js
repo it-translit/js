@@ -102,8 +102,7 @@ Object.entries(mapping).forEach(function(item) {
 });
 const mappings_reverse = get_mappings(mappings_reverse_items);
 
-function trans(source, use_q) {
-    if (use_q === undefined) { use_q = false; }
+function trans(source, use_q = false) {
     let mappings = use_q ? mappings_with_q : mappings_wo_q;
     let source_lower = source.toLowerCase();
     let res = '';
@@ -139,7 +138,7 @@ function trans(source, use_q) {
             let sl = source_lower.substr(i, n);
             let to = mappings[n - 1][sl];
             if (to !== undefined) {
-                if (!use_q && (to.startsWith("'") || to.startsWith("e'"))) {
+                if (!use_q && (to.startsWith("'") || to == "e'w")) {
                     let s = source.substr(i, n);
                     if ((s === s.toLowerCase() && (i == 0 || !isUpper(source[i - 1]))) ||
                         (s === s.toUpperCase() &&  i  > 0 &&  isUpper(source[i - 1]))) {
