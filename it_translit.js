@@ -61,9 +61,11 @@ const mapping = {
     'ыа': 'yaw',
     'ыу': 'yuw',
     'ыо': 'yow',
-    'еь': "e'w",
-    'ьь': "'w",
-    'ьъ': "'ww",
+    'еь': 'eqw',
+    'ьь': 'qw',
+    'ьъ': 'qww',
+    'ъь': 'qqw',
+    'ъъ': 'qqqw',
     'еъ': 'eww',
     'зх': 'zkh',
     'зкх':'zkhw',
@@ -138,10 +140,12 @@ function trans(source, {use_q = false} = {}) {
             let sl = source_lower.substr(i, n);
             let to = mappings[n - 1][sl];
             if (to !== undefined) {
-                if (!use_q && (to.startsWith("'") || to == "e'w")) {
+                if (!use_q && to.startsWith("'")) {
                     let s = source.substr(i, n);
-                    if ((s === s.toLowerCase() && (i == 0 || !isUpper(source[i - 1]))) ||
-                        (s === s.toUpperCase() &&  i  > 0 &&  isUpper(source[i - 1]))) {
+                    if (isAlpha(source.substr(i + n, 1)) ?
+                        (s === s.toLowerCase()) == (source[i + n] === source[i + n].toLowerCase()) :
+                        (s === s.toLowerCase() && (i == 0 || isLower(source[i - 1]))) ||
+                        (s === s.toUpperCase() &&  i  > 0 && isUpper(source[i - 1]))) {
                         // pass
                     } else {
                         to = to.replaceAll("'", "q");
@@ -275,7 +279,7 @@ function reverse(source) {
                     }
                 } else if (source[i] === "'") {
                     //if i > 0 and source[i-1].isupper():
-                    if (res.length > 0 && isUpper(res.charAt(res.length - 1))) {
+                    if (isAlpha(source.substr(i + n, 1)) ? isUpper(source[i + n]) : res.length > 0 && isUpper(res[res.length - 1])) {
                         to = to.toUpperCase();
                     }
                 }
