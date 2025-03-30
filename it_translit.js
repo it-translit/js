@@ -114,15 +114,14 @@ function trans(source, {use_q = false} = {}) {
             res += '\\\\';
             i++;
             continue;
-        } else if ((source_lower.charCodeAt(i) >= 'a'.charCodeAt(0) && source_lower.charCodeAt(i) <= 'z'.charCodeAt(0)) || source_lower[i] === "'") {
+        } else if ((source_lower[i] >= 'a' && source_lower[i] <= 'z') || source_lower[i] === "'") {
             res += '\\';
             let start = i;
             i++;
             while (i < source.length) {
-                let code = source_lower.charCodeAt(i);
-                if ((code >= 'а'.charCodeAt(0) && code <= 'я'.charCodeAt(0)) || source_lower[i] === "ё") {
+                if ((source_lower[i] >= 'а' && source_lower[i] <= 'я') || source_lower[i] === "ё") {
                     i -= 1;
-                    while (i >= 0 && !(((source_lower.charCodeAt(i) >= 'a'.charCodeAt(0) && source_lower.charCodeAt(i) <= 'z'.charCodeAt(0)) || source_lower[i] === "'"))) {
+                    while (i >= 0 && !(((source_lower[i] >= 'a' && source_lower[i] <= 'z') || source_lower[i] === "'"))) {
                         i -= 1;
                     }
                     i++;
