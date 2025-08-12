@@ -139,7 +139,7 @@ function trans(source, {use_q = false} = {}) {
             let sl = source_lower.substr(i, n);
             let to = mappings[n - 1][sl];
             if (to !== undefined) {
-                if (!use_q && to.startsWith("'")) {
+                if (to.startsWith("'")) {
                     let s = source.substr(i, n);
                     if (isAlpha(source.substr(i + n, 1)) ?
                         (s === s.toLowerCase()) == (source[i + n] === source[i + n].toLowerCase()) :
